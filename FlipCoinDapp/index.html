@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>People</title>
+    <title>Flip DApp</title>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"
       integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
       crossorigin="anonymous"></script>
@@ -18,37 +18,35 @@
   <body>
     <div class="jumbotron jumbotron-fluid">
       <div class="container">
-        <h1 class="display-4">People Dapp</h1>
-        <p class="lead">Expose your data to the world! </p>
+        <h1 class="display-4">Flip DApp</h1>
+        <p class="lead">Flip'n win! </p>
       </div>
     </div>
     <div class="container">
       <div>
-        <h2>Add Your Data</h2>
+        <h2>Take your chance to win</h2>
         <div class="input-group mb-3">
-          <input type="text" class="form-control" id="name_input" placeholder="Name" >
+          <input type="text" class="form-control" id="bet_input" placeholder="Put your bet in ether" >
         </div>
-        <div class="input-group mb-3">
-          <input type="number" class="form-control" id="age_input" placeholder="Age">
-        </div>
-        <div class="input-group mb-3">
-          <input type="text" class="form-control" id="height_input" placeholder="Height" >
-        </div>
-        <button type="button" id="add_data_button" class="btn btn-primary">Add Data</button>
+        <button type="button" id="flip_button" class="btn btn-primary">Flip the Coin</button>
+        <p>Good Luck!</p>
       </div>
       <div>
-        <h2>Get Your Data</h2>
+        <center>
+        <h2>Jackpot</h2>
         <div>
-          Name: <span id="name_output"></span>
+          <h2><span id="jackpot_output"></span></h2>
         </div>
-        <div>
-          Age: <span id="age_output"></span>
-        </div>
-        <div>
-          Height: <span id="height_output"></span>
-        </div>
-        <button type="button" id="get_data_button" class="btn btn-primary">Get Data</button>
+        </center>
       </div>
+      <br>
+      <div style="text-align: right">
+        <div>
+          <input type="text"  id="fund_input"  style="width:123px" placeholder="Fund the contract with Ether" >
+        </div>
+        <button type="button" id="fund_contract_button" class="btn btn-primary">Fund Contract</button>
+      </div>
+      <br>
       <div style="text-align: right">
         <button type="button" id="withdraw_button" class="btn btn-primary" style="background-color:red; border-color:red; color:white">Withdraw Funds</button>
         <p>Only contract owner</p>

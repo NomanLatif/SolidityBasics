@@ -3,10 +3,11 @@ var contractInstance;
 
 $(document).ready(function( ) {
     window.ethereum.enable().then(function(accounts){
-        contractInstance = new web3.eth.Contract(abi, "0xfDB5bC6D89eE5D4F79ABD603EcC1a32225e1FdFa", {from: accounts[0]});
+        contractInstance = new web3.eth.Contract(abi, "0x1793C37d795b3E602F0315815eBD00Cc5F6770Cb", {from: accounts[0]});
     });
     $("#get_data_button").click(fetchAndDisplay);
     $("#add_data_button").click(inputData);
+    $("#withdraw_button").click(withdrawAll);
 });
 
 function inputData(){
@@ -35,3 +36,6 @@ function inputData(){
     $("#age_output").text(res["age"]);
     $("#height_output").text(res["height"]);
   }
+  function withdrawAll(){
+    contractInstance.methods.withdrawAll().send();
+}
