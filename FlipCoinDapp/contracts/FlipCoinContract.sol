@@ -29,7 +29,7 @@ contract FlipCoinContract is Ownable {
         return contractBalance = address(this).balance;
     }
 
-    function fundContract() public payable onlyContractOwner returns(uint){
+    function fundContract() public payable returns(uint){
         require(msg.value != 0);
         emit funded(msg.sender, msg.value);
         return msg.value;
