@@ -9,11 +9,9 @@ contract("FlipCoinContract", async function(accounts){
     });
 
     it("should be possible to set betting amount", async function(){
-        //await instance.setBettingAmount({value: web3.utils.toWei("0.5","ether"), from:accounts[0]});
         await instance.setBettingAmount(web3.utils.toWei("0.5","ether"), {from:accounts[0]});
         let bettingAmount = await debug(instance.bettingAmount());
         let floatBettingAmount = parseFloat(bettingAmount);
-        console.log("betting amout floating = " + floatBettingAmount);
         assert(floatBettingAmount == web3.utils.toWei("0.5", "ether"))
     });
 
@@ -46,5 +44,32 @@ contract("FlipCoinContract", async function(accounts){
 
     it("Only owner should be able to withdraw all balance", async function(){
         await truffleAssert.fails(instance.withdrawAll({from: accounts[1]}), truffleAssert.ErrorType.REVERT);
+    });
+
+    it("Should be possible to withdraw specific amount", async function(){
+        await instance.withdrawAll({from: accounts[0]});
+        await instance.fundContract({value: web3.utils.toWei("0.5","ether"), from:accounts[0]})
+        let balance = await instance.getContractBalance();
+        await instance.withdraw(web3.utils.toWei("0.2", "ether"), {from: accounts[0]});
+        balance = await instance.getContractBalance();
+        assert(balance == web3.utils.toWei("0.3","ether"), "Balance should be " + web3.utils.toWei("0.3","ether") + " But was " + balance);
+    });
+
+    it("It should revert if withdraw amount is more than balance", async function(){
+        await truffleAssert.fails(instance.withdraw(web3.utils.toWei("5", "ether"), {from: accounts[0]}), truffleAssert.ErrorType.REVERT);
+    });
+
+    it("Only owner should be able to withdraw amount", async function(){
+        await truffleAssert.fails(instance.withdraw(web3.utils.toWei("0.2", "ether"), {from: accounts[1]}), truffleAssert.ErrorType.REVERT);
+    });
+
+    it("should be possible to pause betting", async function(){
+        await instance.pauseBetting(true);
+        let isBettingPaused = await instance.pauseBettingAfterCurrentRound({from: accounts[0]});
+        assert(isBettingPaused, "Betting should be paused")
+    });
+
+    it("Only owner should be able to pause betting", async function(){
+        await truffleAssert.fails(instance.pauseBetting(true, {from:accounts[1]}), truffleAssert.ErrorType.REVERT);
     });
 });
