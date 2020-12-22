@@ -72,4 +72,37 @@ contract("FlipCoinContract", async function(accounts){
     it("Only owner should be able to pause betting", async function(){
         await truffleAssert.fails(instance.pauseBetting(true, {from:accounts[1]}), truffleAssert.ErrorType.REVERT);
     });
+
+    it("should be able to bet", async function(){
+        let balanceBefore = await instance.getContractBalance();
+        let betAmount = web3.utils.toWei("0.5", "ether");
+        let tx = await instance.bet(1, {value: betAmount, from: accounts[1]});
+        truffleAssert.eventEmitted(tx, 'betTaken', (ev) => {
+            return ev.player === accounts[1] && parseFloat(ev.betAmount) == parseFloat(betAmount) && ev.choice == 1;
+        });
+
+        let balanceAfter = await instance.getContractBalance();
+        let expectedBalance = parseFloat(balanceBefore) + parseFloat(betAmount);
+        assert(balanceAfter == expectedBalance, "Balance was " + balanceAfter + " But it should be " + expectedBalance);
+        
+        let betBalanceHead = await instance.betBalance(0);
+        let betBalanceTail = await instance.betBalance(1);
+        assert(betBalanceHead == 0 && parseFloat(betBalanceTail) == parseFloat(betAmount));
+
+        let result = await instance.getBetDetails(accounts[1]);
+        assert(result[0] == 1 &&  result[1] == betAmount, "Bet details are not correct" );
+    });
+
+    it("should be able to flip", async function(){
+        let balanceBefore = await instance.getContractBalance();
+        let betAmount = web3.utils.toWei("0.5", "ether");
+        await instance.bet(1, {value: betAmount, from: accounts[1]});
+        await instance.bet(1, {value: betAmount, from: accounts[2]});
+        await instance.bet(1, {value: betAmount, from: accounts[3]});
+        await instance.bet(0, {value: betAmount, from: accounts[4]});
+        await instance.bet(0, {value: betAmount, from: accounts[5]});
+        await instance.bet(1, {value: betAmount, from: accounts[6]});
+
+        await instance.flip({from: accounts[0]});
+    });
 });
