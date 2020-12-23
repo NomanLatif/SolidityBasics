@@ -6,17 +6,13 @@ import "./SafeMath.sol";
 contract FlipCoinContract is Ownable {
     enum BetingChoice{HEAD, TAIL}
 
-    struct BetDetails{
-        BetingChoice choice;
-        uint betAmount;
-    }
-
     uint public bettingAmount;
     bool public pauseBettingAfterCurrentRound;
     bool public isContractPaused;
-    uint[2] public betBalance;
-
-    mapping (address => BetDetails) private bets;
+    uint public totalBetAmount;
+    address[] public playersForHead;
+    address[] public playersForTail;
+    mapping (address => uint) public playerBalance;
 
     event funded(address contractOwner, uint funding);
     event betTaken(address player, uint betAmount, BetingChoice choice);
@@ -75,22 +71,32 @@ contract FlipCoinContract is Ownable {
     }
 
     function bet(BetingChoice choice) public payable costs(bettingAmount) {
-        BetDetails memory betDetails;
-        betDetails.betAmount = msg.value;
-        betDetails.choice = choice;
-        address player = msg.sender;
-        bets[player] = betDetails;
-
-        betBalance[uint(choice)] = SafeMath.add(betBalance[uint(choice)], msg.value);
+        totalBetAmount = SafeMath.add(totalBetAmount, msg.value);
+        choice == BetingChoice.HEAD ? playersForHead.push(msg.sender) : playersForTail.push(msg.sender);
 
         emit betTaken(msg.sender, msg.value, choice);
     }
 
-    function getBetDetails(address player) public view returns(uint, uint) {
-        return (uint(bets[player].choice), bets[player].betAmount);
+    function flip() public onlyContractOwner {
+        uint8 winner = 1; // get random 0 or 1
+        uint commision = SafeMath.div(totalBetAmount, 10);
+        uint amountToDistribute = SafeMath.sub(totalBetAmount, commision); // subtract commision
+
+        address[] memory winners = winner == 0 ? playersForHead : playersForTail;
+        uint shareAmount = SafeMath.div(amountToDistribute, winners.length);
+        totalBetAmount = 0;
+        for(uint i = 0; i < winners.length; i++) {
+            playerBalance[winners[i]] = SafeMath.add(playerBalance[winners[i]], shareAmount);
+        }
+        delete playersForHead;
+        delete playersForTail;
     }
 
-    function flip() public onlyContractOwner {
+    function getNumberOfHeadBets() public view returns(uint) {
+        return playersForHead.length;
+    }
 
+    function getNumberOfTailBets() public view returns(uint) {
+        return playersForTail.length;
     }
 }

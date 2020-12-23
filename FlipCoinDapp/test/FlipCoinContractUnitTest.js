@@ -85,24 +85,73 @@ contract("FlipCoinContract", async function(accounts){
         let expectedBalance = parseFloat(balanceBefore) + parseFloat(betAmount);
         assert(balanceAfter == expectedBalance, "Balance was " + balanceAfter + " But it should be " + expectedBalance);
         
-        let betBalanceHead = await instance.betBalance(0);
-        let betBalanceTail = await instance.betBalance(1);
-        assert(betBalanceHead == 0 && parseFloat(betBalanceTail) == parseFloat(betAmount));
+        let totalBetAmount = await instance.totalBetAmount();
+        assert(parseFloat(totalBetAmount) == parseFloat(betAmount));
 
-        let result = await instance.getBetDetails(accounts[1]);
-        assert(result[0] == 1 &&  result[1] == betAmount, "Bet details are not correct" );
+        let addedPlayer = await instance.playersForTail(0);
+        assert(addedPlayer == accounts[1], "Player is not added" );
+
+        await instance.flip({from: accounts[0]});// for clearing the values;
     });
 
     it("should be able to flip", async function(){
         let balanceBefore = await instance.getContractBalance();
         let betAmount = web3.utils.toWei("0.5", "ether");
-        await instance.bet(1, {value: betAmount, from: accounts[1]});
         await instance.bet(1, {value: betAmount, from: accounts[2]});
         await instance.bet(1, {value: betAmount, from: accounts[3]});
-        await instance.bet(0, {value: betAmount, from: accounts[4]});
+        await instance.bet(1, {value: betAmount, from: accounts[4]});
         await instance.bet(0, {value: betAmount, from: accounts[5]});
-        await instance.bet(1, {value: betAmount, from: accounts[6]});
+        await instance.bet(0, {value: betAmount, from: accounts[6]});
+        await instance.bet(1, {value: betAmount, from: accounts[7]});
 
+        let balanceAfter = await instance.getContractBalance();
+        let expectedTotalBetAmount = parseFloat(betAmount) * 6;
+        let expectedBalance = parseFloat(balanceBefore) + expectedTotalBetAmount;
+        assert(balanceAfter == expectedBalance, "Balance was " + balanceAfter + " But it should be " + expectedBalance);
+        
+        let numberOfHeadBets = await instance.getNumberOfHeadBets();
+        let numberOfTailBets = await instance.getNumberOfTailBets();
+        assert(numberOfHeadBets == 2 && numberOfTailBets == 4, "Number of bets are not matching");
+
+        let totalBetAmount = await instance.totalBetAmount();
+        assert(totalBetAmount == expectedTotalBetAmount, "Bet amount is not matching"); 
+        
         await instance.flip({from: accounts[0]});
+        balanceAfter = await instance.getContractBalance();
+        assert(balanceAfter == expectedBalance, "After flip Balance was " + balanceAfter + " But it should be " + expectedBalance);
+        let totalBetAmountAfterFlip = await instance.totalBetAmount();
+        assert(totalBetAmountAfterFlip == 0, "After flip bet amount is not matching");
+
+        numberOfHeadBets = await instance.getNumberOfHeadBets();
+        numberOfTailBets = await instance.getNumberOfTailBets();
+        assert(numberOfHeadBets == 0 && numberOfTailBets == 0, "After flip Number of bets are not matching");
+
+        let account2Balance = await instance.playerBalance(accounts[2]);
+        let account3Balance = await instance.playerBalance(accounts[3]);
+        let account4Balance = await instance.playerBalance(accounts[4]);
+        let account5Balance = await instance.playerBalance(accounts[5]);
+        let account6Balance = await instance.playerBalance(accounts[6]);
+        let account7Balance = await instance.playerBalance(accounts[7]);
+
+        let expectedPlayerBalance = (parseFloat(totalBetAmount) - (parseFloat(totalBetAmount) * 0.1)) / 4
+        assert(account3Balance == expectedPlayerBalance, "Player balance was " + account3Balance + " but it should be " + expectedPlayerBalance);
+
     });
+
+    // web3.eth.getGasPrice(function(error, result){ 
+    //     var gasPrice = Number(result);
+    //     console.log("Gas Price is " + gasPrice + " wei"); // "10000000000000"
+    //     TestContract.deployed().then(function(instance) {
+    
+    //         // Use the keyword 'estimateGas' after the function name to get the gas estimation for this particular function 
+    //         return instance.giveAwayDividend.estimateGas(1);
+    
+    //     }).then(function(result) {
+    //         var gas = Number(result);
+    
+    //         console.log("gas estimation = " + gas + " units");
+    //         console.log("gas cost estimation = " + (gas * gasPrice) + " wei");
+    //         console.log("gas cost estimation = " + TestContract.web3.fromWei((gas * gasPrice), 'ether') + " ether");
+    //     });
+    // });
 });
