@@ -116,6 +116,7 @@ contract("FlipCoinContract", async function(accounts){
         let totalBetAmount = await instance.totalBetAmount();
         assert(totalBetAmount == expectedTotalBetAmount, "Bet amount is not matching"); 
         
+        // Flip the coin
         await instance.flip({from: accounts[0]});
         balanceAfter = await instance.getContractBalance();
         assert(balanceAfter == expectedBalance, "After flip Balance was " + balanceAfter + " But it should be " + expectedBalance);
@@ -134,8 +135,66 @@ contract("FlipCoinContract", async function(accounts){
         let account7Balance = await instance.playerBalance(accounts[7]);
 
         let expectedPlayerBalance = (parseFloat(totalBetAmount) - (parseFloat(totalBetAmount) * 0.1)) / 4
-        assert(account3Balance == expectedPlayerBalance, "Player balance was " + account3Balance + " but it should be " + expectedPlayerBalance);
+        assert(account2Balance == expectedPlayerBalance, "Player2 balance was " + account2Balance + " but it should be " + expectedPlayerBalance);
+        assert(account3Balance == expectedPlayerBalance, "Player3 balance was " + account3Balance + " but it should be " + expectedPlayerBalance);
+        assert(account4Balance == expectedPlayerBalance, "Player4 balance was " + account4Balance + " but it should be " + expectedPlayerBalance);
+        assert(account5Balance == 0, "Player5 balance was " + account5Balance + " but it should be " + expectedPlayerBalance);
+        assert(account6Balance == 0, "Player6 balance was " + account6Balance + " but it should be " + expectedPlayerBalance);
+        assert(account7Balance == expectedPlayerBalance, "Player7 balance was " + account7Balance + " but it should be " + expectedPlayerBalance);
+    });
 
+    it("only owner should be able to flip the coin", async function(){
+        await truffleAssert.fails(instance.flip({from:accounts[1]}), truffleAssert.ErrorType.REVERT);
+    });
+
+    it("Should be possible for user to withdraw all of his balance", async function(){
+        // await instance.fundContract({value: web3.utils.toWei("3","ether"), from:accounts[0]});
+        let account2 = await instance.playerBalance(accounts[2]);
+        console.log("account2 " + account2);
+        await instance.withdrawAllUserBalance({from: accounts[2]});
+
+        let account3 = await instance.playerBalance(accounts[3]);
+        console.log("account3 " + account3);
+        await instance.withdrawAllUserBalance({from: accounts[3]});
+
+        let account4 = await instance.playerBalance(accounts[4]);
+        console.log("account4 " + account4);
+        await instance.withdrawAllUserBalance({from: accounts[4]});
+
+
+        let betAmount = web3.utils.toWei("0.5", "ether");
+        await instance.bet(0, {value: betAmount, from: accounts[2]});
+        await instance.bet(0, {value: betAmount, from: accounts[3]});
+        await instance.bet(1, {value: betAmount, from: accounts[4]});
+        let totalBetAmountBeforeFlip = await instance.totalBetAmount();
+        await instance.flip({from: accounts[0]});
+        let totalBetAmountAfterFlip = await instance.totalBetAmount();
+        assert(totalBetAmountAfterFlip == 0, "Total bet amount should be zero after flip");    
+
+        let expectedPlayerBalance = (parseFloat(totalBetAmountBeforeFlip) - (parseFloat(totalBetAmountBeforeFlip) * 0.1)) / 1;
+        let contractBeforeWithdraw = await instance.getContractBalance();
+        let account2BalanceBeforeWithdraw = await instance.playerBalance(accounts[2]);
+        let account3BalanceBeforeWithdraw = await instance.playerBalance(accounts[3]);
+        let account4BalanceBeforeWithdraw = await instance.playerBalance(accounts[4]);
+        assert(account2BalanceBeforeWithdraw == 0 && account3BalanceBeforeWithdraw == 0 && account4BalanceBeforeWithdraw == expectedPlayerBalance, 
+            "account balances before withdraw are not correct " + account4BalanceBeforeWithdraw + "   " + expectedPlayerBalance);
+        
+        // await instance.withdrawAllUserBalance({from: accounts[2]});
+        // await instance.withdrawAllUserBalance({from: accounts[3]});
+        await instance.withdrawAllUserBalance({from: accounts[4]});
+
+        let account2BalanceAfterWithdraw = await instance.playerBalance(accounts[2]);
+        let account3BalanceAfterWithdraw = await instance.playerBalance(accounts[3]);
+        let account4BalanceAfterWithdraw = await instance.playerBalance(accounts[4]);
+        let contractBalanceAfterWithdraw = await instance.getContractBalance();
+
+        let expectedContractBalance = parseFloat(contractBeforeWithdraw) - parseFloat(account4BalanceBeforeWithdraw);
+        assert(account2BalanceAfterWithdraw == 0 && account3BalanceAfterWithdraw == 0 && account4BalanceAfterWithdraw == 0, "Accounts balances after withdraw are not matching")
+        assert(contractBalanceAfterWithdraw == expectedContractBalance, "Contract balance should be " + expectedContractBalance + " But was " + contractBalanceAfterWithdraw);
+    });
+
+    it("Only owner should be able to withdraw all balance", async function(){
+        await truffleAssert.fails(instance.withdrawAll({from: accounts[1]}), truffleAssert.ErrorType.REVERT);
     });
 
     // web3.eth.getGasPrice(function(error, result){ 

@@ -92,6 +92,13 @@ contract FlipCoinContract is Ownable {
         delete playersForTail;
     }
 
+    function withdrawAllUserBalance() public {
+        uint amountToTransfer = playerBalance[msg.sender];
+        require(amountToTransfer > 0, "No balance for the player");
+        playerBalance[msg.sender] = 0;
+        msg.sender.transfer(amountToTransfer);
+    }
+
     function getNumberOfHeadBets() public view returns(uint) {
         return playersForHead.length;
     }
