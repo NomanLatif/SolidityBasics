@@ -16,43 +16,98 @@
 
   </head>
   <body>
-    <div class="jumbotron jumbotron-fluid">
-      <div class="container">
-        <h1 class="display-4">Flip DApp</h1>
-        <p class="lead">Flip'n win! </p>
+    <nav class="navbar sticky-top navbar-expand-lg navbar-light" style="background-color: #560bad;">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Flip It</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">How it works</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">About</a>
+            </li>
+            <!-- <li class="nav-item">
+              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+            </li> -->
+          </ul>
+        </div>
       </div>
+    </nav>
+    <div class="container">
+      <!-- <img src="images/coin-flip.gif" class="img-fluid" alt="..."> -->
+      <img src="images/coin-flip.gif" class="rounded mx-auto d-block" alt="Flip the coin">
     </div>
     <div class="container">
       <div>
-        <h2>Take your chance to win</h2>
-        <div class="input-group mb-3">
+        <!-- <div class="input-group mb-3">
           <input type="text" class="form-control" id="bet_input" placeholder="Put your bet in ether" >
-        </div>
-        <button type="button" id="flip_button" class="btn btn-primary">Flip the Coin</button>
-        <p>Good Luck!</p>
-      </div>
-      <div>
-        <center>
-        <h2>Jackpot</h2>
-        <div>
-          <h2><span id="jackpot_output"></span></h2>
-        </div>
-        </center>
-      </div>
-      <br>
-      <div style="text-align: right">
-        <div>
-          <input type="text"  id="fund_input"  style="width:123px" placeholder="Fund the contract with Ether" >
-        </div>
-        <button type="button" id="fund_contract_button" class="btn btn-primary">Fund Contract</button>
-      </div>
-      <br>
-      <div style="text-align: right">
-        <button type="button" id="withdraw_button" class="btn btn-primary" style="background-color:red; border-color:red; color:white">Withdraw Funds</button>
-        <p>Only contract owner</p>
+        </div> -->
+        <button type="button" id="bet_on_head_button" class="btn btn-primary">Bet on Head</button>
+        <button type="button" id="bet_on_tail_button" class="btn btn-primary">Bet on Tail</button>
       </div>
     </div>
-
-
+    <br>
+    <h2 class="text-center">Current bets</h2>
+    <table class="table table-striped table-hover">
+      <thead>
+          <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Customer-ID</th>
+              <th>Email</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <td>1</td>
+              <td>John Pate</td>
+              <td>AUSXYZ1481</td>
+              <td>johnpate@mydomain.com</td>
+          </tr>
+          <tr>
+              <td>2</td>
+              <td>Gina Ray</td>
+              <td>AUSXYZ2932</td>
+              <td>ginaray@mydomain.com</td>
+          </tr>
+      </tbody>
+  </table>
+  <div class="container">
+    <div>
+      <center>
+      <h2>Jackpot</h2>
+      <div>
+        <h2><span id="jackpot_output"></span></h2>
+      </div>
+      </center>
+    </div>
+    <br>
+    <div style="text-align: right">
+      <button type="button" id="flip_button" class="btn btn-primary">Flip Coin</button>
+    </div>
+    <br>
+    <div style="text-align: right">
+      <button type="button" id="withdraw_user_balance" class="btn btn-primary">Withdraw balance</button>
+    </div>
+    <br>
+    <div style="text-align: right">
+      <div>
+        <input type="text"  id="fund_input"  style="width:123px" placeholder="Fund the contract with Ether" >
+      </div>
+      <button type="button" id="fund_contract_button" class="btn btn-primary">Fund Contract</button>
+    </div>
+    <br>
+    <div style="text-align: right">
+      <button type="button" id="withdraw_button" class="btn btn-primary" style="background-color:red; border-color:red; color:white">Withdraw Funds</button>
+      <p>Only contract owner</p>
+    </div>
+  </div>
   </body>
 </html>

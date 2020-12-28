@@ -148,19 +148,9 @@ contract("FlipCoinContract", async function(accounts){
     });
 
     it("Should be possible for user to withdraw all of his balance", async function(){
-        // await instance.fundContract({value: web3.utils.toWei("3","ether"), from:accounts[0]});
-        let account2 = await instance.playerBalance(accounts[2]);
-        console.log("account2 " + account2);
         await instance.withdrawAllUserBalance({from: accounts[2]});
-
-        let account3 = await instance.playerBalance(accounts[3]);
-        console.log("account3 " + account3);
         await instance.withdrawAllUserBalance({from: accounts[3]});
-
-        let account4 = await instance.playerBalance(accounts[4]);
-        console.log("account4 " + account4);
         await instance.withdrawAllUserBalance({from: accounts[4]});
-
 
         let betAmount = web3.utils.toWei("0.5", "ether");
         await instance.bet(0, {value: betAmount, from: accounts[2]});
@@ -179,8 +169,6 @@ contract("FlipCoinContract", async function(accounts){
         assert(account2BalanceBeforeWithdraw == 0 && account3BalanceBeforeWithdraw == 0 && account4BalanceBeforeWithdraw == expectedPlayerBalance, 
             "account balances before withdraw are not correct " + account4BalanceBeforeWithdraw + "   " + expectedPlayerBalance);
         
-        // await instance.withdrawAllUserBalance({from: accounts[2]});
-        // await instance.withdrawAllUserBalance({from: accounts[3]});
         await instance.withdrawAllUserBalance({from: accounts[4]});
 
         let account2BalanceAfterWithdraw = await instance.playerBalance(accounts[2]);
@@ -193,8 +181,8 @@ contract("FlipCoinContract", async function(accounts){
         assert(contractBalanceAfterWithdraw == expectedContractBalance, "Contract balance should be " + expectedContractBalance + " But was " + contractBalanceAfterWithdraw);
     });
 
-    it("Only owner should be able to withdraw all balance", async function(){
-        await truffleAssert.fails(instance.withdrawAll({from: accounts[1]}), truffleAssert.ErrorType.REVERT);
+    it("Should be error if sender has no balance", async function(){
+        await truffleAssert.fails(instance.withdrawAllUserBalance({from: accounts[4]}), truffleAssert.ErrorType.REVERT);
     });
 
     // web3.eth.getGasPrice(function(error, result){ 

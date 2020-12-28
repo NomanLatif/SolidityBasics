@@ -1,27 +1,61 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
+var contractAddress = "0x40586a10dc0E73dedfD319034c215984d836181D"
 
 $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
-        contractInstance = new web3.eth.Contract(abi, "0x8A5c7D96EFDf40292d4fEB6E7d1BA5ddc41373C0", {from: accounts[0]});
+        contractInstance = new web3.eth.Contract(abi, contractAddress, {from: accounts[0]});
         console.log(contractInstance);
     });
 
-    web3.eth.getBalance("0x8A5c7D96EFDf40292d4fEB6E7d1BA5ddc41373C0").then(function(result){
-        $("#jackpot_output").text(web3.utils.fromWei(result, "ether") + " Ether");
-    });
+    // web3.eth.getBalance(contractAddress).then(function(result){
+    //     $("#jackpot_output").text(web3.utils.fromWei(result, "ether") + " Ether");
+    // });
 
+    $("#bet_on_head_button").bind("click", function(event) {
+        bet("0");
+    });
+    $("#bet_on_tail_button").bind("click", function(event) {
+        bet("1");
+    });
     $("#flip_button").click(flip);
     $("#fund_contract_button").click(fundContract);
     $("#withdraw_button").click(withdrawAll);
 });
 
-function flip(){
-    var bet = $("#bet_input").val();
+
+
+async function bet(choice) {
+    var betAmount = await contractInstance.methods.bettingAmount().call();
     var config = {
-        value: web3.utils.toWei(bet,"ether")
+        value: web3.utils.toWei(betAmount,"wei")
     }
-    contractInstance.methods.flip().send(config)
+    contractInstance.methods.bet(choice).send(config)
+    .on("transactionHash", function(hash){
+        console.log(hash);
+    })
+    .on("confirmation", function(confirmationNr){
+        console.log(confirmationNr);
+    })
+    .on("receipt", function(receipt){
+        console.log(receipt);
+        /*
+        if(receipt.events.betTaken.returnValues[2] === false){
+            alert("You lost " + bet + " Ether!");
+        }
+        else if(receipt.events.betTaken.returnValues[2] === true){
+            alert("You won " + bet + " Ether!");
+        }
+        */
+    })
+}
+
+function flip(){
+    //var bet = $("#bet_input").val();
+    // var config = {
+    //     value: web3.utils.toWei(bet,"ether")
+    // }
+    contractInstance.methods.flip().send()
     .on("transactionHash", function(hash){
         console.log(hash);
     })
@@ -40,16 +74,16 @@ function flip(){
         */
     })
 
-    contractInstance.events.betTaken(function(error, event){ 
-        console.log(event); 
-    })
-    .on('data', function(event){
-        console.log(event); // same results as the optional callback above
-    })
-    .on('changed', function(event){
-        // remove event from local database
-    })
-    .on('error', console.error);
+    // contractInstance.events.betTaken(function(error, event){ 
+    //     console.log(event); 
+    // })
+    // .on('data', function(event){
+    //     console.log(event); // same results as the optional callback above
+    // })
+    // .on('changed', function(event){
+    //     // remove event from local database
+    // })
+    // .on('error', console.error);
 
 }
 
