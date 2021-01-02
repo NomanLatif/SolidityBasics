@@ -6,6 +6,10 @@ $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
         contractInstance = new web3.eth.Contract(abi, contractAddress, {from: accounts[0]});
         console.log(contractInstance);
+        totalBetAmount();
+        getAccounts(function(result) {
+            userBalance(result[0]);
+        });
     });
 
     // web3.eth.getBalance(contractAddress).then(function(result){
@@ -107,4 +111,24 @@ function fundContract(){
 
 function withdrawAll(){
     contractInstance.methods.withdrawAll().send();
+}
+
+async function userBalance(account) {
+    var userBalance = await contractInstance.methods.playerBalance(account).call();
+    $("#user_balance_label").text(web3.utils.fromWei(userBalance, "ether") + " Ether");
+}
+
+async function totalBetAmount() {
+    var totalBetAmount = await contractInstance.methods.totalBetAmount().call();
+    $("#total_bet_amount_label").text(web3.utils.fromWei(totalBetAmount, "ether")  + " Ether");
+}
+
+function getAccounts(callback) {
+    web3.eth.getAccounts((error,result) => {
+        if (error) {
+            console.log(error);
+        } else {
+            callback(result);
+        }
+    });
 }
