@@ -1,11 +1,14 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0x40586a10dc0E73dedfD319034c215984d836181D"
+var contractAddress = "0x40586a10dc0E73dedfD319034c215984d836181D";
+// var betTakenEvent;
 
 $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
         contractInstance = new web3.eth.Contract(abi, contractAddress, {from: accounts[0]});
         console.log(contractInstance);
+        betTakenWatch();
+        // betTakeEvent = contractInstance.betTaken();
         totalBetAmount();
         getAccounts(function(result) {
             userBalance(result[0]);
@@ -26,8 +29,6 @@ $(document).ready(function() {
     $("#fund_contract_button").click(fundContract);
     $("#withdraw_button").click(withdrawAll);
 });
-
-
 
 async function bet(choice) {
     var betAmount = await contractInstance.methods.bettingAmount().call();
@@ -78,17 +79,6 @@ function flip(){
         */
     })
 
-    // contractInstance.events.betTaken(function(error, event){ 
-    //     console.log(event); 
-    // })
-    // .on('data', function(event){
-    //     console.log(event); // same results as the optional callback above
-    // })
-    // .on('changed', function(event){
-    //     // remove event from local database
-    // })
-    // .on('error', console.error);
-
 }
 
 
@@ -120,7 +110,7 @@ async function userBalance(account) {
 
 async function totalBetAmount() {
     var totalBetAmount = await contractInstance.methods.totalBetAmount().call();
-    $("#total_bet_amount_label").text(web3.utils.fromWei(totalBetAmount, "ether")  + " Ether");
+    updateTotalBetAmount(totalBetAmount);
 }
 
 function getAccounts(callback) {
@@ -132,3 +122,35 @@ function getAccounts(callback) {
         }
     });
 }
+
+function betTakenWatch() {
+    contractInstance.events.betTaken(function(error, event){ 
+        console.log(event); 
+    })
+    .on('data', function(event){
+        updateTotalBetAmount(event.returnValues.totalBetAmount);
+        updatePlayers();
+    })
+    .on('changed', function(event){
+        // remove event from local database
+        console.log("changed event")
+    })
+    .on('error', console.error);
+}
+
+function updateTotalBetAmount(totalBetAmount) {
+    $("#total_bet_amount_label").text(web3.utils.fromWei(totalBetAmount, "ether")  + " Ether");
+}
+
+async function updatePlayers(){
+    var players = await contractInstance.getPlayers();
+    console.log("All players " + JSON.stringify(players));
+}
+// betTaken.watch(function(error, result){
+//     if (!error)
+//         {
+//             console.log("event received " + JSON.stringify(result));
+//         } else {
+//             console.log("event error " + JSON.stringify(error));
+//         }
+// });

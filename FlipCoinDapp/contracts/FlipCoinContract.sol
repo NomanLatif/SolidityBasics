@@ -15,7 +15,7 @@ contract FlipCoinContract is Ownable {
     mapping (address => uint) public playerBalance;
 
     event funded(address contractOwner, uint funding);
-    event betTaken(address player, uint betAmount, BetingChoice choice);
+    event betTaken(address player, BetingChoice choice, uint totalBetAmount);
 
     constructor() public {
         
@@ -74,7 +74,7 @@ contract FlipCoinContract is Ownable {
         totalBetAmount = SafeMath.add(totalBetAmount, msg.value);
         choice == BetingChoice.HEAD ? playersForHead.push(msg.sender) : playersForTail.push(msg.sender);
 
-        emit betTaken(msg.sender, msg.value, choice);
+        emit betTaken(msg.sender, choice, totalBetAmount);
     }
 
     function flip() public onlyContractOwner {
@@ -105,5 +105,9 @@ contract FlipCoinContract is Ownable {
 
     function getNumberOfTailBets() public view returns(uint) {
         return playersForTail.length;
+    }
+
+    function getPlayers() public view return(address[] memory, address[] memory) {
+        return (playersForHead, playersForTail);
     }
 }

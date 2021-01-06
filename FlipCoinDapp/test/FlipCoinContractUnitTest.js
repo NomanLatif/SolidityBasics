@@ -75,10 +75,12 @@ contract("FlipCoinContract", async function(accounts){
 
     it("should be able to bet", async function(){
         let balanceBefore = await instance.getContractBalance();
+        let totalBetAmountBefore = await instance.totalBetAmount();
         let betAmount = web3.utils.toWei("0.5", "ether");
+        let expectedTotalBetAmount = parseFloat(totalBetAmountBefore) + parseFloat(betAmount); 
         let tx = await instance.bet(1, {value: betAmount, from: accounts[1]});
         truffleAssert.eventEmitted(tx, 'betTaken', (ev) => {
-            return ev.player === accounts[1] && parseFloat(ev.betAmount) == parseFloat(betAmount) && ev.choice == 1;
+            return ev.player === accounts[1] && parseFloat(ev.totalBetAmount) == expectedTotalBetAmount && ev.choice == 1;
         });
 
         let balanceAfter = await instance.getContractBalance();
