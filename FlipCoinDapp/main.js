@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0x40586a10dc0E73dedfD319034c215984d836181D";
+var contractAddress = "0x220D7b6d18dDa216FD8aAdF512c7Cfb850c2F463";
 // var betTakenEvent;
 
 $(document).ready(function() {

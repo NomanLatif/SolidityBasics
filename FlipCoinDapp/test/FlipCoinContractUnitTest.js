@@ -109,6 +109,13 @@ contract("FlipCoinContract", async function(accounts){
         let balanceAfter = await instance.getContractBalance();
         let expectedTotalBetAmount = parseFloat(betAmount) * 6;
         let expectedBalance = parseFloat(balanceBefore) + expectedTotalBetAmount;
+        let players = await instance.getPlayers();
+        assert(players[0][0] == accounts[5], "player not found");
+        assert(players[0][1] == accounts[6], "player not found");
+        assert(players[1][0] == accounts[2], "player not found");
+        assert(players[1][1] == accounts[3], "player not found");
+        assert(players[1][2] == accounts[4], "player not found");
+        assert(players[1][3] == accounts[7], "player not found");
         assert(balanceAfter == expectedBalance, "Balance was " + balanceAfter + " But it should be " + expectedBalance);
         
         let numberOfHeadBets = await instance.getNumberOfHeadBets();

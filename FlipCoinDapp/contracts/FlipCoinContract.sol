@@ -107,7 +107,7 @@ contract FlipCoinContract is Ownable {
         return playersForTail.length;
     }
 
-    function getPlayers() public view return(address[] memory, address[] memory) {
+    function getPlayers() public view returns(address[] memory, address[] memory) {
         return (playersForHead, playersForTail);
     }
 }
