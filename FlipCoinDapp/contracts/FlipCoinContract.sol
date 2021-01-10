@@ -16,6 +16,7 @@ contract FlipCoinContract is Ownable {
 
     event funded(address contractOwner, uint funding);
     event betTaken(address player, BetingChoice choice, uint totalBetAmount);
+    event flipped(uint result);
 
     constructor() public {
         
@@ -78,7 +79,8 @@ contract FlipCoinContract is Ownable {
     }
 
     function flip() public onlyContractOwner {
-        uint8 winner = 1; // get random 0 or 1
+        uint winner = random();
+        emit flipped(winner);
         uint commision = SafeMath.div(totalBetAmount, 10);
         uint amountToDistribute = SafeMath.sub(totalBetAmount, commision); // subtract commision
 
@@ -90,6 +92,10 @@ contract FlipCoinContract is Ownable {
         }
         delete playersForHead;
         delete playersForTail;
+    }
+
+    function random() public view returns(uint) {
+        return now % 2;
     }
 
     function withdrawAllUserBalance() public {
